@@ -2,12 +2,13 @@ name: Upstream Sync
 
 permissions:
   contents: write
+  workflows: write
   actions: write
 
 on:
   schedule:
     - cron: '0 */6 * * *'  # 每6小时自动运行一次
-  workflow_dispatch:      # 支持手动触发
+  workflow_dispatch:        # 支持手动触发运行
 
 jobs:
   sync_latest_from_upstream:
@@ -27,9 +28,9 @@ jobs:
           target_sync_branch: main
           target_repo_token: ${{ secrets.GITHUB_TOKEN }}
           test_mode: false
-          force_push: true    # 强制推送，覆盖你的fork
+          force_push: true    # 强制推送，确保同步与主仓库完全一致
 
-      - name: Sync check
+      - name: Sync failure alert
         if: failure()
         uses: actions-cool/issues-helper@v3
         with:
@@ -37,4 +38,5 @@ jobs:
           title: '🚨 同步失败 | Sync Fail'
           labels: '🚨 Sync Fail'
           body: |
-            由于上游仓库 workflow 文件变更，GitHub 自动暂停了本次自动更新，请手动同步 Fork。
+            由于上游仓库的变更导致自动同步失败，请手动检查并同步 fork。
+            详细教程请参考：[Upstream Sync 教程](https://github.com/lobehub/lobe-chat/wiki/Upstream-Sync.zh-CN)
